@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4f2ee">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="狗头军师">
+<title>狗头军师</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark" data-icon="message"></span>
+      <div class="brand-text">
+        <span class="brand-name">狗头军师</span>
+        <span class="brand-sub">恋爱军师 · 情绪支持</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="iconbtn" id="btn-profile" type="button" aria-label="我的档案" title="我的档案">
+        <span data-icon="user"></span>
+      </button>
+      <button class="iconbtn" id="btn-new" type="button" aria-label="新对话" title="新对话">
+        <span data-icon="refresh"></span>
+      </button>
+      <button class="iconbtn" id="btn-settings" type="button" aria-label="设置" title="设置">
+        <span data-icon="settings"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="chat" class="chat" aria-live="polite"></main>
+
+<footer class="composer">
+  <div class="composer-inner">
+    <div class="pending" id="pending" hidden></div>
+    <div class="composer-row">
+      <button class="iconbtn attach" id="btn-attach" type="button" aria-label="添加聊天截图" title="添加聊天截图">
+        <span data-icon="image"></span>
+      </button>
+      <textarea id="input" rows="1" placeholder="说说你的局面，或贴上聊天记录"></textarea>
+      <button class="send" id="btn-send" type="button" aria-label="发送">
+        <span data-icon="send"></span>
+      </button>
+    </div>
+    <input type="file" id="file-input" accept="image/*" multiple hidden>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay-onboarding" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ob-title">
+    <div class="sheet-head">
+      <h2 id="ob-title">先让我认识你和局面</h2>
+      <button class="iconbtn" id="ob-close" type="button" aria-label="关闭">
+        <span data-icon="x"></span>
+      </button>
+    </div>
+    <p class="sheet-hint">不知道的可以留空，也可以只在「经过」里直接讲故事。</p>
+
+    <section class="ob-group">
+      <h3>你</h3>
+      <div class="grid2">
+        <label>MBTI<input id="ob-me-mbti" placeholder="如 INTJ，可留空"></label>
+        <label>主观评分 0–100<input id="ob-me-score" type="number" min="0" max="100" placeholder="你给自己的评分"></label>
+      </div>
+      <label>优势与短板<textarea id="ob-me-notes" rows="2" placeholder="各一句话即可"></textarea></label>
+    </section>
+
+    <section class="ob-group">
+      <h3>对象 A</h3>
+      <div class="grid2">
+        <label>代号<input id="ob-a-name" placeholder="怎么称呼方便"></label>
+        <label>MBTI<input id="ob-a-mbti" placeholder="可留空"></label>
+        <label>主观评分 0–100<input id="ob-a-score" type="number" min="0" max="100" placeholder="你当下的评价"></label>
+        <label>当前关系<input id="ob-a-status" placeholder="如：暧昧三周"></label>
+      </div>
+    </section>
+
+    <section class="ob-group">
+      <h3>对象 B（如有）</h3>
+      <div class="grid2">
+        <label>代号<input id="ob-b-name" placeholder="可留空"></label>
+        <label>MBTI<input id="ob-b-mbti" placeholder="可留空"></label>
+        <label>主观评分 0–100<input id="ob-b-score" type="number" min="0" max="100" placeholder="可留空"></label>
+        <label>当前关系<input id="ob-b-status" placeholder="可留空"></label>
+      </div>
+    </section>
+
+    <section class="ob-group">
+      <h3>经过与目标</h3>
+      <label>经过：认识方式、发展多久、最近三件关键事件、双方投入<textarea id="ob-story" rows="4" placeholder="直接讲故事就行"></textarea></label>
+      <label>目标
+        <select id="ob-goal">
+          <option value="推进关系">推进关系</option>
+          <option value="确认关系">确认关系</option>
+          <option value="修复冲突">修复冲突</option>
+          <option value="比较多人选择">比较多人选择</option>
+          <option value="退出或止损">退出或止损</option>
+          <option value="先聊聊看" selected>先聊聊看</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="ob-group">
+      <h3>情绪</h3>
+      <label>最难受的点<input id="ob-emotion" placeholder="一句话"></label>
+      <label class="range-label">强度 <output id="ob-intensity-val">5</output>/10
+        <input id="ob-intensity" type="range" min="0" max="10" value="5">
+      </label>
+    </section>
+
+    <label class="consent">
+      <input id="ob-consent" type="checkbox">
+      <span>同意在本机浏览器保存精简档案，可随时查看或删除</span>
+    </label>
+
+    <div class="sheet-actions">
+      <button class="btn ghost" id="ob-skip" type="button">跳过，直接聊</button>
+      <button class="btn" id="ob-start" type="button">开始</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay center" id="overlay-settings" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="st-title">
+    <div class="sheet-head">
+      <h2 id="st-title">设置</h2>
+      <button class="iconbtn" id="st-close" type="button" aria-label="关闭">
+        <span data-icon="x"></span>
+      </button>
+    </div>
+    <label>模型服务
+      <select id="st-provider">
+        <option value="zhipu" selected>智谱 GLM</option>
+        <option value="deepseek">DeepSeek</option>
+        <option value="qwen">通义千问</option>
+        <option value="openai">OpenAI</option>
+        <option value="custom">自定义</option>
+      </select>
+    </label>
+    <label>接口地址 Base URL<input id="st-base" placeholder="https://..." spellcheck="false"></label>
+    <label>API Key<input id="st-key" type="password" placeholder="只保存在本机浏览器" spellcheck="false" autocomplete="off"></label>
+    <label>模型<input id="st-model" placeholder="如 deepseek-chat" spellcheck="false"></label>
+    <label>参考资料用量
+      <select id="st-doccap">
+        <option value="4000">精简（省 token）</option>
+        <option value="9000" selected>标准</option>
+      </select>
+    </label>
+    <p class="sheet-note">Key 仅保存在本机浏览器 localStorage，请求直接从你的浏览器发往模型服务。带截图提问需要模型支持视觉。</p>
+    <div class="backup-row">
+      <button class="btn ghost" id="st-export" type="button">导出记忆</button>
+      <button class="btn ghost" id="st-import" type="button">导入记忆</button>
+    </div>
+    <input type="file" id="import-file" accept="application/json,.json" hidden>
+    <div class="sheet-actions">
+      <button class="btn ghost" id="st-cancel" type="button">取消</button>
+      <button class="btn" id="st-save" type="button">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay center" id="overlay-profile" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pf-title">
+    <div class="sheet-head">
+      <h2 id="pf-title">我的档案</h2>
+      <button class="iconbtn" id="pf-close" type="button" aria-label="关闭">
+        <span data-icon="x"></span>
+      </button>
+    </div>
+    <div id="pf-body"></div>
+    <div class="sheet-actions">
+      <button class="btn ghost danger" id="pf-delete" type="button">删除档案</button>
+      <button class="btn" id="pf-edit" type="button">重新填写</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="references-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
